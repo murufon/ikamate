@@ -1,0 +1,28 @@
+version: '3'
+services:
+  mysql:
+    image: "mysql:5.7"
+    volumes:
+      - ./mysql-storage:/var/lib/mysql
+    ports:
+      - "5946:3306"
+    command: mysqld --character-set-server=utf8
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: "db"
+      MYSQL_USER: "db_user"
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+
+  webapp:
+    build:
+      context: "./docker/webapp"
+    volumes:
+      - "./webapp:/root/webapp"
+    env_file:
+      - ./.env
+    ports:
+      - "$WEBAPP_PORT:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - mysql
+
